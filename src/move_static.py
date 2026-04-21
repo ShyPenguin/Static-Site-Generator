@@ -2,21 +2,17 @@ import os
 import shutil
 
 def move_static(destination, copy_path):
-        try:
-            dest_dir_abs = os.path.abspath(destination)
-            if os.path.exists(dest_dir_abs):
-                shutil.rmtree(dest_dir_abs)
-            
-            if not os.path.exists(dest_dir_abs):
-                os.mkdir(dest_dir_abs)
+    if not os.path.exists(destination):
+        os.mkdir(destination)
 
-            abs_path = os.path.abspath(copy_path)
-            if os.path.exists(abs_path) and os.path.isdir(abs_path):
-                items = os.listdir(abs_path)
-                for item in items:
-                    copy_files(destination, f"{copy_path}/{item}")
-        except Exception as e:
-            print(f"Something went wrong: {e}")
+    for filename in os.listdir(copy_path):
+        from_path = os.path.join(copy_path, filename)
+        dest_path = os.path.join(destination, filename)
+        print(f" * {from_path} -> {dest_path}")
+        if os.path.isfile(from_path):
+            shutil.copy(from_path, dest_path)
+        else:
+            move_static(from_path, dest_path)
     
 def copy_files(destination, copy_path):
     abs_path = os.path.abspath(copy_path)
