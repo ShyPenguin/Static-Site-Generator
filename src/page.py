@@ -1,7 +1,7 @@
 import os
 from block_markdown import extract_title, markdown_to_html_node
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, base_path):
     if not os.path.exists(dest_dir_path):
         os.mkdir(dest_dir_path)
 
@@ -12,11 +12,11 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         if os.path.isfile(from_path):
             if from_path[-3:] != '.md':
                 continue
-            generate_page(from_path, template_path, f"{dest_path[:-3]}.html")
+            generate_page(from_path, template_path, f"{dest_path[:-3]}.html", base_path)
         else:
-            generate_pages_recursive(from_path, template_path, dest_path)
+            generate_pages_recursive(from_path, template_path, dest_path, base_path)
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, base_path):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     
     from_file = read_file(from_path)
@@ -27,6 +27,7 @@ def generate_page(from_path, template_path, dest_path):
     title = extract_title(html_string)
 
     dest_content = template_file.replace("{{ Title }}", title).replace("{{ Content }}", html_string)
+    dest_content = dest_content.replace('href="/', f'href="{base_path}').replace('src="/', f'src="{base_path}')
     write_file(dest_path, dest_content)
 
 def read_file(path):
